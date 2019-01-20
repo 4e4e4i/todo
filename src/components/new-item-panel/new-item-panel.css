@@ -1,3 +1,11 @@
 .new-item-panel {
     margin-top: 6px;
 }
+
+.new-item-panel input {
+    margin-right: 3px;
+}
+
+.new-item-panel button {
+    flex-shrink: 0;
+}
