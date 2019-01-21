@@ -14,11 +14,13 @@ export default class App extends Component {
     maxId = 100;
 
     state = {
-        todoData: [
+        items: [
             this.createTodoItem('Drink Coffee'),
             this.createTodoItem('Make Awesome App'),
             this.createTodoItem('Have a lunch')
-        ]
+        ],
+        filter: 'all',
+        term: ''
     };
 
     createTodoItem(label) {
@@ -34,30 +36,30 @@ export default class App extends Component {
         const newItem = this.createTodoItem(text);
 
         // add element in array
-        this.setState(({ todoData }) => {
+        this.setState(({ items }) => {
 
             const newArr = [
-                ...todoData,
+                ...items,
                 newItem
             ];
 
             return {
-                todoData: newArr
+                items: newArr
             };
         });
     };
 
     deleteItem = (id) => {
-        this.setState(({ todoData }) => {
-            const idx = todoData.findIndex((el) => el.id === id);
+        this.setState(({ items }) => {
+            const idx = items.findIndex((el) => el.id === id);
 
             const newArray = [
-                ...todoData.slice(0, idx),
-                ...todoData.slice(idx + 1)
+                ...items.slice(0, idx),
+                ...items.slice(idx + 1)
             ];
 
             return {
-                todoData: newArray
+                items: newArray
             }
         })
     };
@@ -78,38 +80,73 @@ export default class App extends Component {
         ];
     };
 
+    onFilterChange = (filter) => {
+        this.setState({ filter });
+    };
+
+    onSearchChange = (term) => {
+        this.setState({ term });
+    };
+
     onToggleImportant = (id) => {
-        this.setState(({ todoData }) => {
+        this.setState(({ items }) => {
             return {
-                todoData: this.toggleProperty(todoData, id, 'important')
+                items: this.toggleProperty(items, id, 'important')
             };
         });
     };
 
     onToggleDone = (id) => {
-        this.setState(({ todoData }) => {
+        this.setState(({ items }) => {
             return {
-                todoData: this.toggleProperty(todoData, id, 'done')
+                items: this.toggleProperty(items, id, 'done')
             };
         });
     };
 
+    searchItems(items, term) {
+        if(term.length === 0) {
+            return items;
+        }
+
+        return items.filter((item) => {
+            return item.label
+                .toLowerCase()
+                .indexOf(term.toLowerCase()) > -1;
+        });
+    }
+
+    filterItems(items, filter) {
+        if (filter === 'all') {
+            return items;
+        } else if (filter === 'active') {
+            return items.filter((item) => (!item.done));
+        } else if (filter === 'done') {
+            return items.filter((item) => item.done);
+        }
+    }
+
 
     render() {
 
-        const { todoData } = this.state;
-        const doneCount = todoData.filter((el) => el.done).length;
-        const todoCount = todoData.length - doneCount;
+        const { items, filter, term } = this.state;
+        const doneCount = items.filter((item) => item.done).length;
+        const todoCount = items.length - doneCount;
+        const visibleItems = this.filterItems(this.searchItems(items, term), filter);
 
         return (
             <div className="todo-app">
                 <AppHeader toDo={todoCount} done={doneCount}/>
                 <div className="top-panel d-flex">
-                    <SearchPanel/>
-                    <ItemStatusFilter/>
+                    <SearchPanel
+                        onSearchChange={ this.onSearchChange }/>
+                    <ItemStatusFilter
+                        filter={filter}
+                        onFilterChange={ this.onFilterChange }
+                    />
                 </div>
                 <TodoList
-                    todos={ todoData }
+                    todos={ visibleItems }
                     onDeleted={ this.deleteItem }
                     onToggleImportant={ this.onToggleImportant }
                     onToggleDone={ this.onToggleDone }
