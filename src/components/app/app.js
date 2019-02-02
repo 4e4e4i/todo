@@ -14,11 +14,7 @@ export default class App extends Component {
     maxId = 100;
 
     state = {
-        items: [
-            this.createTodoItem('Drink Coffee'),
-            this.createTodoItem('Make Awesome App'),
-            this.createTodoItem('Have a lunch')
-        ],
+        items: [],
         filter: 'all',
         term: ''
     };
@@ -35,6 +31,10 @@ export default class App extends Component {
     addItem = (text) => {
         const newItem = this.createTodoItem(text);
 
+        const serialObj = JSON.stringify(this.state); //сериализуем его
+
+        localStorage.setItem("items", serialObj);
+
         // add element in array
         this.setState(({ items }) => {
 
@@ -47,6 +47,7 @@ export default class App extends Component {
                 items: newArr
             };
         });
+
     };
 
     deleteItem = (id) => {
@@ -126,7 +127,6 @@ export default class App extends Component {
         }
     }
 
-
     render() {
 
         const { items, filter, term } = this.state;
@@ -145,14 +145,14 @@ export default class App extends Component {
                         onFilterChange={ this.onFilterChange }
                     />
                 </div>
+                <NewItemPanel
+                    onItemAdded={ this.addItem }/>
                 <TodoList
                     todos={ visibleItems }
                     onDeleted={ this.deleteItem }
                     onToggleImportant={ this.onToggleImportant }
                     onToggleDone={ this.onToggleDone }
                 />
-                <NewItemPanel
-                    onItemAdded={ this.addItem }/>
             </div>
         );
     }

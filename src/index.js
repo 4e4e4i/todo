@@ -3,5 +3,7 @@ import ReactDOM from 'react-dom';
 
 import App from "./components/app";
 
-ReactDOM.render(<App/>,
+const items = JSON.parse(localStorage.getItem('items'));
+
+ReactDOM.render(<App items={items}/>,
     document.getElementById('root'));
